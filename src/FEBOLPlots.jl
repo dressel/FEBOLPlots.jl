@@ -31,6 +31,7 @@ rc("font", family="serif")
 
 export 
     visualize,
+    gif,
     plot_vehicle,
     plot,
     hold,
