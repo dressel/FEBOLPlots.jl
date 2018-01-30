@@ -13,7 +13,7 @@ where
 
 An alternative call uses the `SimUnit` type:
 
-`visualize(m::SearchDomain, su::SimUnit; pause_time=0.3`)
+`visualize(m::SearchDomain, su::SimUnit; pause_time=0.3)`
 """
 function visualize(m::SearchDomain,
                    x::Vehicle,
