@@ -1,9 +1,39 @@
-# don't reset the filter, vehicle, and policy
+"""
+Plots each step of a simulation.
+
+`visualize(m, x, f, p, n_steps=10; pause_time=0.3)`
+
+where
+* `m` is a `SearchDomain`
+* `x` is a `Vehicle`
+* `f` is a subtype of `AbstractFilter`
+* `p` is a subtype of `Policy`
+* `n_steps` is the number of steps to simulate
+* `pause_time` is the time to wait between steps
+
+An alternative call uses the `SimUnit` type:
+
+`visualize(m::SearchDomain, su::SimUnit; pause_time=0.3`)
+"""
+function visualize(m::SearchDomain,
+                   x::Vehicle,
+                   f::AbstractFilter,
+                   p::Policy,
+                   n_steps::Int=10;
+                   pause_time::Real = 0.3
+                  )
+
+    tc = StepThreshold(n_steps)
+    su = SimUnit(x, f, p, tc)
+    visualize(m, su; pause_time=pause_time)
+end
+
+# doesn't reset the filter, vehicle, and policy
 # assume SimUnit comes in clean and ready to go
 function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
 
     # What was the cost to getting this first observation?
-    temp_cost = get_cost(uav, m)
+    cost_sum = get_cost(uav, m)
 
     # before doing anything else, we observe
     #  and update filter once
@@ -25,7 +55,7 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
         act!(m, uav.x, a)
 
         # get cost and update step count
-        temp_cost += get_cost(uav, m, a)
+        cost_sum += get_cost(uav, m, a)
         step_count += 1
 
         # observe and update
@@ -41,5 +71,5 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
         title("i = $(step_count), max = $(round(max_b,3))")
     end
 
-    return temp_cost
+    return cost_sum
 end
