@@ -1,3 +1,6 @@
+#a = rc("font", family="Times New Roman", size=16)
+#println("a = ", a)
+
 """
 Plots each step of a simulation.
 
@@ -32,6 +35,10 @@ end
 # assume SimUnit comes in clean and ready to go
 function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
 
+    #println("rc_context = ", rc_context())
+    #rc("font", family="Times New Roman", size=16)
+    #rc("text", usetext=true)
+
     # What was the cost to getting this first observation?
     cost_sum = get_cost(uav, m)
 
@@ -54,6 +61,8 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
         a = action(m, uav, o)
         act!(m, uav.x, a)
 
+        move_target!(m)
+
         # get cost and update step count
         cost_sum += get_cost(uav, m, a)
         step_count += 1
@@ -67,7 +76,8 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
         figure("Simulation")
         cla()
         plot(m, uav.f, uav.x)
-        max_b = maximum(uav.f.b)
+        #max_b = maximum(uav.f.b)
+        max_b = 32.7
         title("i = $(step_count), max = $(round(max_b,3))")
     end
 

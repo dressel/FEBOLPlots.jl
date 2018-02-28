@@ -136,13 +136,16 @@ function plot(m::SearchDomain, f::PF; alpha=1.0)
 	x = zeros(f.n)
 	y = zeros(f.n)
 	for i = 1:f.n
-		x[i] = f.X[i][1]
-		y[i] = f.X[i][2]
+		#x[i] = f.b.particles[i][1]
+		x[i] = particle(f,i)[1]
+		y[i] = particle(f,i)[2]
+		#y[i] = f.b.particles[i][2]
 	end
 	#scatter(x,y,c=f.W,cmap="Greys",vmin=0)
-	scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
-	xmean, ymean = centroid(f)
-	plot(xmean, ymean, "gx", ms=10, mew=2)
+	#scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
+	scatter(x,y, s=1, alpha=0.2, c="k")
+	#xmean, ymean = centroid(f)
+	#plot(xmean, ymean, "gx", ms=10, mew=2)
 	labels()
 	axis("scaled")
 	axis(a)
@@ -286,8 +289,10 @@ end
 
 # Sets the appropriate plot labels
 function labels()
-	xlabel("East (m)", fontsize=12)
-	ylabel("North (m)", fontsize=12)
+	#xlabel("East (m)", fontsize=12)
+	#ylabel("North (m)", fontsize=12)
+	xlabel("East (m)")
+	ylabel("North (m)")
 end
 
 ######################################################################
