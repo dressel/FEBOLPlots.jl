@@ -49,6 +49,9 @@ function gif(m::SearchDomain,
         update!(f, x, o)
         a = action(m, x, o, f, p)
         act!(m,x,a)
+
+        move_target!(m)
+
         new_pose = (x.x, x.y, x.heading)
         # Plot everything in between old pose and new pose
         dx = (new_pose[1] - old_pose[1]) / frames_per_step

@@ -12,7 +12,7 @@
 
 Plots the belief, jammer, and vehicles.
 """
-function plot(m::SearchDomain, f::AbstractFilter, x::Vehicle; show_mean::Bool=false, show_cov::Bool=false, alpha=1.0, color="b")
+function plot(m::SearchDomain, f::AbstractFilter, x::Vehicle; show_mean::Bool=false, show_cov::Bool=false, alpha=0.2, color="k")
 	plot(m, f, (x.x, x.y, x.heading); show_mean=show_mean, show_cov=show_cov, alpha=alpha, color=color)
 end
 # allow plotting of multiple vehicles with a single shared filter
@@ -77,11 +77,15 @@ function plot(m::SearchDomain, f::DF; alpha=1.0, cmap="Greys")
 	plot(m, f.b, alpha=alpha, cmap=cmap)
 end
 function plot(m::SearchDomain, b::Matrix{Float64}; alpha=1.0, cmap="Greys")
+
 	# alpha changed by LD for rss submission 2017
-	alpha = 0.5
-	alpha = 0.6
+	#alpha = 0.5
+	#alpha = 0.6
+    # commented out for cdc 2018
+
 	a = [0,m.length,0,m.length]
 	imshow(b', interpolation="none",cmap=cmap,origin="lower",extent=a,vmin=0, alpha=alpha)
+	#imshow(b', cmap=cmap,origin="lower",extent=a,vmin=0, alpha=alpha)
 	labels()
 	axis(a)
 	tick_params(direction="in")
@@ -130,20 +134,79 @@ end
 #end
 
 
-function plot(m::SearchDomain, f::PF; alpha=1.0)
+function plot(m::SearchDomain, f::PF; alpha=0.2, cmap="Greys", color="k")
 	mark_size = 12
 	a = [0,m.length,0,m.length]
 	x = zeros(f.n)
 	y = zeros(f.n)
 	for i = 1:f.n
-		#x[i] = f.b.particles[i][1]
 		x[i] = particle(f,i)[1]
 		y[i] = particle(f,i)[2]
-		#y[i] = f.b.particles[i][2]
 	end
 	#scatter(x,y,c=f.W,cmap="Greys",vmin=0)
 	#scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
-	scatter(x,y, s=1, alpha=0.2, c="k")
+	scatter(x, y, s=1, alpha=alpha, c=color)
+	#xmean, ymean = centroid(f)
+	#plot(xmean, ymean, "gx", ms=10, mew=2)
+	labels()
+	axis("scaled")
+	axis(a)
+	tick_params(direction="in")
+end
+function plot(m::SearchDomain, b::Vector{Tuple{Float64,Float64}}; alpha=0.2, cmap="Greys", color="k")
+	plot_theta(m)
+	mark_size = 12
+	a = [0,m.length,0,m.length]
+    x = zeros(length(b))
+    y = zeros(length(b))
+    for i = 1:length(b)
+        x[i] = b[i][1]
+        y[i] = b[i][2]
+	end
+	#scatter(x,y,c=f.W,cmap="Greys",vmin=0)
+	#scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
+	scatter(x, y, s=1, alpha=alpha, c=color)
+	#xmean, ymean = centroid(f)
+	#plot(xmean, ymean, "gx", ms=10, mew=2)
+	labels()
+	axis("scaled")
+	axis(a)
+	tick_params(direction="in")
+end
+function plot(m::SearchDomain, b::Vector{Tuple{Float64,Float64}}, p; alpha=0.2, cmap="Greys", color="k")
+	plot_theta(m)
+	plot_vehicle(m, p; color=color)
+	mark_size = 12
+	a = [0,m.length,0,m.length]
+    x = zeros(length(b))
+    y = zeros(length(b))
+    for i = 1:length(b)
+        x[i] = b[i][1]
+        y[i] = b[i][2]
+	end
+	#scatter(x,y,c=f.W,cmap="Greys",vmin=0)
+	#scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
+	scatter(x, y, s=1, alpha=alpha, c=color)
+	#xmean, ymean = centroid(f)
+	#plot(xmean, ymean, "gx", ms=10, mew=2)
+	labels()
+	axis("scaled")
+	axis(a)
+	tick_params(direction="in")
+end
+function plot(m::SearchDomain, b::ParticleCollection; alpha=1.0)
+	mark_size = 12
+	a = [0,m.length,0,m.length]
+    n = length(b.particles)
+	x = zeros(n)
+	y = zeros(n)
+	for i = 1:n
+		x[i] = particle(b,i)[1]
+		y[i] = particle(b,i)[2]
+	end
+	#scatter(x,y,c=f.W,cmap="Greys",vmin=0)
+	#scatter(x,y,c=f.W,cmap="Blues",vmin=0, alpha=0.2)
+	scatter(x, y, s=1, alpha=0.2, c="k")
 	#xmean, ymean = centroid(f)
 	#plot(xmean, ymean, "gx", ms=10, mew=2)
 	labels()
@@ -156,7 +219,7 @@ function plot_mean(mu::LocTuple; color="b")
 	plot_mean(mu[1], mu[2], color=color)
 end
 function plot_mean(xmean::Float64, ymean::Float64; color="b")
-	plot(xmean, ymean, "$(color)x", ms=10, mew=2)
+	plot(xmean, ymean, "$(color)X", ms=10, mew=1.5, mec="k")
 end
 
 
@@ -225,7 +288,7 @@ end
 # Plots locations of the vehicles
 plot_vehicle(m::SearchDomain,x::Vehicle; color="b") = plot_vehicle(m,x.x,x.y,x.heading, color=color)
 plot_vehicle(m::SearchDomain, p::Pose; color="b") = plot_vehicle(m, p[1], p[2], p[3], color=color)
-function plot_vehicle(m::SearchDomain, x::Float64, y::Float64, h::Float64; color="b")
+function plot_vehicle(m::SearchDomain, x::Float64, y::Float64, h::Float64; color="k")
 	mark_size = 10
 
 	# Changed by LD for 01/30/2017 for rss submission
@@ -248,7 +311,7 @@ function plot_vehicle(m::SearchDomain, x::Float64, y::Float64, h::Float64; color
 	theta4 = 315.0 + h
 	#cs = "$(color)o"
 	cs = "wo"
-	color = "k"
+	#color = color
 	plot(x+c*sind(theta1), y+c*cosd(theta1), cs, ms=rotor_size, mew=2.5, mfc="none", mec=color)
 	plot(x+c*sind(theta2), y+c*cosd(theta2), cs, ms=rotor_size, mew=2.5, mfc="none", mec=color)
 	plot(x+c*sind(theta3), y+c*cosd(theta3), cs, ms=rotor_size, mew=2.5, mfc="none", mec=color)
@@ -384,6 +447,45 @@ function plot{TP<:AbstractFilter}(m::SearchDomain, farr::Vector{TP}, parr::Vecto
 			plot(m, centroid(f), covariance(f), color=colors[fi])
 		end
 		plot(m, f, alpha=alpha, cmap=cmaps[fi])
+	end
+	return # so it doesn't spit out result of axis
+end
+
+function plot(m::SearchDomain, vsu::Vector{SimUnit};
+              show_mean::Bool=false,
+              show_cov::Bool=false,
+              alpha=1.0
+             )
+	num_vehicles = length(vsu)
+	cmaps = ["Blues", "Reds"]
+	colors = ["b", "r"]
+	if num_vehicles == 1
+		cmaps = ["Greys"]
+		colors = ["b"]
+	elseif num_vehicles == 2
+		cmaps = ["Blues", "Reds"]
+		colors = ["b", "r"]
+	elseif num_vehicles == 3
+		cmaps = ["Blues", "Reds", "Greens"]
+		colors = ["b", "r", "g"]
+	elseif num_vehicles == 4
+		cmaps = ["Blues", "Reds", "Greens", "Greys"]
+		colors = ["b", "r", "g", "k"]
+	end
+	plot_theta(m)
+	#hold(true)  # deprecated
+	#cmaps = ["Blues", "Reds"]
+	#colors = ["b", "r"]
+	for (fi,uav) in enumerate(vsu)
+		#p = parr[fi]
+		plot_vehicle(m, uav.x, color=colors[fi])
+		if show_mean
+			plot_mean(centroid(uav.f), color=colors[fi])
+		end
+		if show_cov
+			plot(m, centroid(uav.f), covariance(uav.f), color=colors[fi])
+		end
+        plot(m, uav.f, alpha=alpha, cmap=cmaps[fi], color=colors[fi])
 	end
 	return # so it doesn't spit out result of axis
 end

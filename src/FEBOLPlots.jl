@@ -5,29 +5,29 @@ module FEBOLPlots
 
 using FEBOL
 
-#using PyPlot: 
-#    imshow,
-#    xlabel,
-#    ylabel,
-#    contour,
-#    figure,
-#    pause,
-#    hold,
-#    axis,
-#    title,
-#    scatter,
-#    gcf,
-#    savefig,
-#    matplotlib,
-#    rc,
-#    tick_params,
-#    clf,
-#    cla
+using PyPlot: 
+    imshow,
+    xlabel,
+    ylabel,
+    contour,
+    figure,
+    pause,
+    hold,
+    axis,
+    title,
+    scatter,
+    gcf,
+    savefig,
+    matplotlib,
+    rc,
+    tick_params,
+    clf,
+    cla
 
 using PyPlot
 import PyPlot.plot
 
-#using Reel      # for gifs
+using Reel      # for gifs
 
 #rc("font", family="serif")
 #rc("text", usetex=true)
@@ -41,7 +41,11 @@ export
     plot,
     hold,
     title,
-    pause
+    pause,
+    figure,
+    cla,
+    gcf,
+    savefig
 
 const LocTuple = NTuple{2, Float64}
 

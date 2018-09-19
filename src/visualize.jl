@@ -33,7 +33,11 @@ end
 
 # doesn't reset the filter, vehicle, and policy
 # assume SimUnit comes in clean and ready to go
-function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
+function visualize(m::SearchDomain, uav::SimUnit;
+                   pause_time=0.3,
+                   alpha=0.1,
+                   show_mean::Bool=false
+                  )
 
     #println("rc_context = ", rc_context())
     #rc("font", family="Times New Roman", size=16)
@@ -58,13 +62,17 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
 
     while !is_complete(uav.f, uav.tc, step_count)
         # act
+        #tic()
         a = action(m, uav, o)
+        #ta = toq()
+        #println("time = ", ta)
         act!(m, uav.x, a)
 
         move_target!(m)
 
         # get cost and update step count
-        cost_sum += get_cost(uav, m, a)
+        cost_val = get_cost(uav, m, a)
+        cost_sum += cost_val
         step_count += 1
 
         # observe and update
@@ -75,11 +83,78 @@ function visualize(m::SearchDomain, uav::SimUnit; pause_time=0.3)
         pause(pause_time)
         figure("Simulation")
         cla()
-        plot(m, uav.f, uav.x)
+        plot(m, uav.f, uav.x, alpha=alpha, show_mean=show_mean)
         #max_b = maximum(uav.f.b)
-        max_b = 32.7
-        title("i = $(step_count), max = $(round(max_b,3))")
+        title("i = $(step_count), cost = $(round(cost_val,3))")
     end
 
     return cost_sum
+end
+
+# visualize function for multiple UAVs at once
+function visualize(m::SearchDomain, vsu::Vector{SimUnit};
+                   pause_time=0.3,
+                   alpha=0.2,
+                   show_mean::Bool=false
+                  )
+
+    #println("rc_context = ", rc_context())
+    #rc("font", family="Times New Roman", size=16)
+    #rc("text", usetext=true)
+
+    # What was the cost to getting this first observation?
+    # TODO: commented out on 8/08/2018, put it back soon
+    #cost_sum = get_cost(uav, m)
+
+    # before doing anything else, we observe
+    #  and update filter once
+    o_vals = []
+    for uav in vsu
+        o = observe(m, uav.x)
+        push!(o_vals, o)
+        update!(uav, o)
+    end
+
+    # This was our first step; steps count number of observations
+    step_count = 1
+
+    # plot if need be
+    figure("Simulation")
+    plot(m, vsu, alpha=alpha)
+    title("i = $(step_count)")
+
+
+    #while !is_complete(uav.f, uav.tc, step_count)
+    while !is_complete(vsu, step_count)
+        # act
+
+        for (uav_idx,uav) in enumerate(vsu)
+            a = action(m, uav, o_vals[uav_idx])
+            act!(m, uav.x, a)
+        end
+
+        move_target!(m)
+
+        # get cost and update step count
+        # TODO: handle costs for the entire group
+        #cost_val = get_cost(uav, m, a)
+        #cost_sum += cost_val
+        step_count += 1
+
+        # observe and update
+        o_vals = []
+        for uav in vsu
+            o = observe(m, uav.x)
+            push!(o_vals, o)
+            update!(uav, o)
+        end
+
+        # plot if need be
+        pause(pause_time)
+        figure("Simulation")
+        cla()
+        plot(m, vsu, alpha=alpha, show_mean=show_mean)
+        title("i = $(step_count)")
+    end
+
 end
