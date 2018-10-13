@@ -36,12 +36,21 @@ end
 function visualize(m::SearchDomain, uav::SimUnit;
                    pause_time=0.3,
                    alpha=0.1,
-                   show_mean::Bool=false
+                   show_mean::Bool=false,
+                   save_gif::Bool=true
                   )
+
+    frames = Frames(MIME("image/png"), fps=5)
 
     #println("rc_context = ", rc_context())
     #rc("font", family="Times New Roman", size=16)
     #rc("text", usetext=true)
+
+    figure("Simulation")
+    plot(m, uav.f, uav.x, alpha=alpha)
+    #title("i = 0")
+    title("\$t\$ = 0 s")
+    push!(frames, gcf())
 
     # What was the cost to getting this first observation?
     cost_sum = get_cost(uav, m)
@@ -55,9 +64,10 @@ function visualize(m::SearchDomain, uav::SimUnit;
     step_count = 1
 
     # plot if need be
-    figure("Simulation")
-    plot(m, uav.f, uav.x)
-    title("i = $(step_count)")
+    plot(m, uav.f, uav.x, alpha=alpha)
+    #title("i = $(step_count)")
+    title("\$t\$ = $(step_count) s")
+    push!(frames, gcf())
 
 
     while !is_complete(uav.f, uav.tc, step_count)
@@ -85,8 +95,13 @@ function visualize(m::SearchDomain, uav::SimUnit;
         cla()
         plot(m, uav.f, uav.x, alpha=alpha, show_mean=show_mean)
         #max_b = maximum(uav.f.b)
-        title("i = $(step_count), cost = $(round(cost_val,3))")
+        #title("i = $(step_count), cost = $(round(cost_val,3))")
+        #title("\$t\$ = $(step_count) s, cost = $(round(cost_val,3))")
+        title("\$t\$ = $(step_count) s")
+        push!(frames, gcf())
     end
+    write("temp.mp4", frames)
+    write("temp.gif", frames)
 
     return cost_sum
 end

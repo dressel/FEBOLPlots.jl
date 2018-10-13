@@ -24,6 +24,7 @@ using PyPlot:
     clf,
     cla
 
+
 using PyPlot
 import PyPlot.plot
 
@@ -45,7 +46,8 @@ export
     figure,
     cla,
     gcf,
-    savefig
+    savefig,
+    Frames
 
 const LocTuple = NTuple{2, Float64}
 
